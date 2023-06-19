@@ -1,6 +1,6 @@
 import express from "express";
 import { check } from "express-validator";
-import * as interviewsControllers from "../controllers/interviews-controller";
+import * as interviewsControllers from "./interviews-controller";
 
 const router = express.Router();
 

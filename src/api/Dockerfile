@@ -1,4 +1,4 @@
-FROM node:16.13-alpine AS build
+FROM mcr.microsoft.com/devcontainers/javascript-node:18 AS build
 
 WORKDIR /app
 

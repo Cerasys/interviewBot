@@ -1,6 +1,6 @@
 import { validationResult } from "express-validator";
 import { HttpError } from "../models/http-error";
-import { Role } from "../models/role";
+import { Role } from "./role";
 import { RequestHandler } from "express";
 
 // const roleList = [

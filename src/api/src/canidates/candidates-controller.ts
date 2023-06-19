@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
-import { Candidate } from "../models/candidate";
+import { Candidate } from "./candidate-model";
 import { HttpError } from "../models/http-error";
 
 export const getCandidateById: RequestHandler = async (req, res, next) => {

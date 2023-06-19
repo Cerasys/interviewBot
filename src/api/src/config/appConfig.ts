@@ -3,6 +3,10 @@ export interface ObservabilityConfig {
     roleName: string
 }
 
+export interface RecallConfig {
+    apiKey: string
+}
+
 export interface DatabaseConfig {
     connectionString: string
     databaseName: string

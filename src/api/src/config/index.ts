@@ -36,6 +36,9 @@ export const getConfig: () => Promise<AppConfig> = async () => {
             connectionString: databaseConfig.connectionString,
             databaseName: databaseConfig.databaseName,
         },
+        recall: {
+            apiKey: process.env.RECALL_API_KEY || "",
+        }
     };
 };
 
@@ -52,7 +55,7 @@ const populateEnvironmentFromKeyVault = async () => {
 
     try {
         logger.info("Populating environment from Azure KeyVault...");
-        const credential = new DefaultAzureCredential({});
+        const credential = new DefaultAzureCredential();
         const secretClient = new SecretClient(keyVaultEndpoint, credential);
 
         for await (const secretProperties of secretClient.listPropertiesOfSecrets()) {
@@ -61,7 +64,9 @@ const populateEnvironmentFromKeyVault = async () => {
             // KeyVault does not support underscores in key names and replaces '-' with '_'
             // Expect KeyVault secret names to be in conventional capitalized snake casing after conversion
             const keyName = secret.name.replace(/-/g, "_");
-            process.env[keyName] = secret.value;
+            if (!process.env[keyName]) {
+                process.env[keyName] = secret.value;
+            }
         }
     }
     catch (err: any) {

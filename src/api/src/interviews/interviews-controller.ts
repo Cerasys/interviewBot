@@ -2,11 +2,10 @@ import axios from "axios";
 import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
-import { Candidate } from "../models/candidate";
+import { Candidate } from "../canidates/candidate-model";
 import { HttpError } from "../models/http-error";
-import { Interview } from "../models/interview";
-import { getSecretClient } from "./shared/secrets";
-import { Role } from "../models/role";
+import { Interview } from "./interview";
+import { Role } from "../roles/role";
 
 // GET all interviews
 export const getAllInterviews: RequestHandler = async (req, res, next) => {
@@ -188,8 +187,7 @@ export const createInterview: RequestHandler = async (req, res, next) => {
  */
 export const createMeetingBot: RequestHandler = async (req, res, next) => {
   const interviewId = req.params.iid;
-  const secretClient = getSecretClient();
-  const recallToken = await secretClient.getSecret("recallai");
+  const recallToken = process.env.RECALL_APIKEY;
 
   try {
     await Interview.findById(interviewId);
@@ -206,7 +204,7 @@ export const createMeetingBot: RequestHandler = async (req, res, next) => {
       method: "post",
       url: "https://api.recall.ai/api/v1/bot/",
       headers: {
-        "Authorization": "Token " + recallToken.value,
+        "Authorization": "Token " + recallToken,
         "Accept": "application/json",
         "Content-Type": "application/json"
       },
