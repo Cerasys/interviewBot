@@ -1,5 +1,5 @@
 {
-  "name": "todo-node-ts-express-mongo",
+  "name": "persona-backend",
   "version": "0.1.0",
   "description": "Express Todo REST API",
   "main": "dist/index.js",
@@ -9,7 +9,7 @@
     "prebuild": "npm run lint",
     "build": "tsc -b .",
     "prestart": "npm run build",
-    "start": "node .",
+    "start": "node . --enable-source-maps",
     "test": "jest --coverage"
   },
   "author": "",

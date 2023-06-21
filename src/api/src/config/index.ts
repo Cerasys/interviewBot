@@ -1,16 +1,17 @@
 import { AppConfig, DatabaseConfig, ObservabilityConfig } from "./appConfig";
 import dotenv from "dotenv";
+import "dotenv/config";
 import { DefaultAzureCredential } from "@azure/identity";
 import { SecretClient } from "@azure/keyvault-secrets";
 import { logger } from "../config/observability";
 import { IConfig } from "config";
 
-export const getConfig: () => Promise<AppConfig> = async () => {
-    // Load any ENV vars from local .env file
-    if (process.env.NODE_ENV !== "production") {
-        dotenv.config();
-    }
+// Load any ENV vars from local .env file
+if (process.env.NODE_ENV !== "production") {
+    dotenv.config();
+}
 
+export const getConfig: () => Promise<AppConfig> = async () => {
     await populateEnvironmentFromKeyVault();
 
     // Load configuration after Azure KeyVault population is complete
@@ -55,7 +56,7 @@ const populateEnvironmentFromKeyVault = async () => {
 
     try {
         logger.info("Populating environment from Azure KeyVault...");
-        const credential = new DefaultAzureCredential();
+        const credential = new DefaultAzureCredential({});
         const secretClient = new SecretClient(keyVaultEndpoint, credential);
 
         for await (const secretProperties of secretClient.listPropertiesOfSecrets()) {
