@@ -1,6 +1,7 @@
 services:
   backend:
     build: ./src/api/.
+    image: personaprod.azurecr.io/persona-backend:latest
     tty: true
     ports:
       - "127.0.0.1:3000:3000"
@@ -23,11 +24,10 @@ services:
       - ZOOM_HOST=${ZOOM_HOST}
     volumes:
       - ./backend:/home/node/app
-    depends_on:
-      - redis
 
   frontend:
     build: ./src/web/.
+    image: personaprod.azurecr.io/persona-zoomapp:latest
     tty: true
     ports:
       - "127.0.0.1:3001:9090"

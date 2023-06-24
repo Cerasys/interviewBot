@@ -20,6 +20,7 @@ const Connect = (props) => {
             href: window.location.href,
             meetingContext: props.meetingContext,
             joinUrl: props.joinUrl,
+            email: props.user && props.user.email,
           }),
           headers: {
             "Content-Type": "application/json",

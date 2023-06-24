@@ -32,6 +32,7 @@ console.log("Zoom Routes Loaded");
 
 console.log("Loading Zoom App Routes...");
 import zoomAppRoutes from "./zoomapp/router";
+import { middleware } from "./middleware/middleware";
 console.log("Zoom App Routes Loaded");
 console.log("debug", "Routes Loaded");
 
@@ -85,6 +86,8 @@ export const createApp = async (): Promise<Express> => {
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
         next();
     });
+    
+    app.use(await middleware.session());
 
     app.use(express.json());
     app.use(cors({

@@ -1,4 +1,4 @@
-import * as redis from "redis";
+import { RedisClientType, createClient } from "redis";
 console.log("after redis, before encrypt");
 import encrypt from "./encrypt";
 console.log("after encrypt");
@@ -16,26 +16,28 @@ console.log(
   "process.env.REDIS_URL: " + process.env.REDIS_URL
 );
 
-try {
-  redis.createClient({
-    url: "redis://redis:6379/1" //process.env.REDIS_URL,
-  });
-} catch (e) {
-  console.log("error: " + e);
-}
 
-export const RedisClient = redis.createClient({
-  url: "redis://redis:6379/1" //process.env.REDIS_URL,
-});
+let client: RedisClientType;
+
+export const RedisClient = async () => {
+  if (!client) {
+    client = createClient({
+      url: process.env.REDIS_URL,
+    });
+
+    // @todo: proper logging and error handling
+    client.on("error", console.error);
+  }
+  await client.connect();
+
+  return client;
+};
 
 console.log("after redis client");
 
-// @todo: proper logging and error handling
-RedisClient.on("error", console.error);
-
 export default {
   getUser: async function (zoomUserId: string) {
-    const user = await RedisClient.get(zoomUserId);
+    const user = await client.get(zoomUserId);
     if (!user) {
       console.log(
         "User not found.  This is normal if the user has added via In-Client (or if you have restarted Docker without closing and reloading the app)"
@@ -53,16 +55,16 @@ export default {
   ) {
     const isValidUser = Boolean(
       typeof zoomUserId === "string" &&
-        typeof accessToken === "string" &&
-        typeof refreshToken === "string" &&
-        typeof expired_at === "number"
+      typeof accessToken === "string" &&
+      typeof refreshToken === "string" &&
+      typeof expired_at === "number"
     );
 
     if (!isValidUser) {
       return Promise.reject("Invalid user input");
     }
 
-    return RedisClient.set(
+    return client.set(
       zoomUserId,
       encrypt.afterSerialization(
         JSON.stringify({ accessToken, refreshToken, expired_at })
@@ -71,35 +73,35 @@ export default {
   },
 
   updateUser: async function (zoomUserId: string, data: any) {
-    const userData = await RedisClient.get(zoomUserId);
+    const userData = await client.get(zoomUserId);
     const existingUser = JSON.parse(encrypt.beforeDeserialization(userData as string));
     const updatedUser = { ...existingUser, ...data };
 
-    return RedisClient.set(
+    return client.set(
       zoomUserId,
       encrypt.afterSerialization(JSON.stringify(updatedUser))
     );
   },
 
   logoutUser: async function (zoomUserId: string) {
-    const reply = await RedisClient.get(zoomUserId);
+    const reply = await client.get(zoomUserId);
     const decrypted = JSON.parse(encrypt.beforeDeserialization(reply as string));
     delete decrypted.thirdPartyAccessToken;
-    return RedisClient.set(
+    return client.set(
       zoomUserId,
       encrypt.afterSerialization(JSON.stringify(decrypted))
     );
   },
 
-  deleteUser: (zoomUserId: string) => RedisClient.del(zoomUserId),
+  deleteUser: (zoomUserId: string) => client.del(zoomUserId),
 
   storeInvite: (invitationID: string, tabState: string) => {
     const dbKey = `invite:${invitationID}`;
-    return RedisClient.set(dbKey, tabState);
+    return client.set(dbKey, tabState);
   },
 
   getInvite: (invitationID: string) => {
     const dbKey = `invite:${invitationID}`;
-    return RedisClient.get(dbKey);
+    return client.get(dbKey);
   },
 };

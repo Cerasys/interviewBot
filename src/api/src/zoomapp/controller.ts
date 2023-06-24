@@ -170,7 +170,7 @@ export const auth: RequestHandler = async (req, res, next) => {
   console.log("1a. code param exists:", req.query.code, "\n");
 
   // 1b. Validate the state parameter is the same as the one we sent
-  if (!zoomAuthorizationState || zoomAuthorizationState !== zoomState) {
+  if (zoomAuthorizationState && !zoomAuthorizationState || zoomAuthorizationState !== zoomState) {
     const error = new HttpError("Invalid state parameter");
     error.status = 400;
     return next(error);

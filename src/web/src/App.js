@@ -35,31 +35,27 @@ function App() {
         const configResponse = await zoomSdk.config({
           capabilities: [
             //APIs
-            "shareApp",
-            "listCameras",
-            "setCamera",
-            "setVideoMirrorEffect",
-            "getMeetingParticipants",
-            "cloudRecording",
             "allowParticipantToRecord",
-            "getRunningContext",
-            "getMeetingContext",
-            "getSupportedJsApis",
-            "showNotification",
-            "openUrl",
-            "setVirtualBackground",
-            "listCameras",
-            "setCamera",
-            "sendAppInvitation",
-            "sendAppInvitationToAllParticipants",
-            "getUserContext",
-            "getRecordingContext",
+            "cloudRecording",
+            "connect",
+            "expandApp",
             "getMeetingContext",
             "getMeetingJoinUrl",
+            "getMeetingParticipants",
             "getMeetingUUID",
-            "expandApp",
-            "connect",
+            "getRecordingContext",
+            "getRunningContext",
+            "getSupportedJsApis",
+            "getUserContext",
+            "listCameras",
+            "openUrl",
             "postMessage",
+            "sendAppInvitation",
+            "sendAppInvitationToAllParticipants",
+            "setCamera",
+            "setVirtualBackground",
+            "shareApp",
+            "showNotification",
             //Events
             "onShareApp",
             "onSendAppInvitation",
@@ -227,6 +223,7 @@ function App() {
         runningContext={runningContext}
         meetingContext={meetingContext}
         joinUrl={joinUrl}
+        user={user}
       />
       <p>{`User Context Status: ${userContextStatus}`}</p>
       <p>

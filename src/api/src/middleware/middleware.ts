@@ -2,10 +2,6 @@ import session from "express-session";
 import SessionStoreConstructor from "connect-redis";
 import store, { RedisClient } from "../util/store";
 
-const SessionStore = new SessionStoreConstructor({
-  client: RedisClient,
-  prefix: "api:",
-});
 
 export const middleware = {
   // Set up required OWASP HTTP response headers
@@ -26,7 +22,7 @@ export const middleware = {
   },
 
   // Zoom app session middleware
-  session: session({
+  session: async () => session({
     secret: process.env.SESSION_SECRET as string,
     resave: false,
     saveUninitialized: true,
@@ -35,7 +31,10 @@ export const middleware = {
       httpOnly: true,
       maxAge: 365 * 24 * 60 * 60 * 1000,
     },
-    store: SessionStore
+    store: new SessionStoreConstructor({
+      client: await RedisClient(),
+      prefix: "api:",
+    })
   }),
 
   // Protected route middleware
