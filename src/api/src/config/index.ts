@@ -1,16 +1,17 @@
 import { AppConfig, DatabaseConfig, ObservabilityConfig } from "./appConfig";
 import dotenv from "dotenv";
+import "dotenv/config";
 import { DefaultAzureCredential } from "@azure/identity";
 import { SecretClient } from "@azure/keyvault-secrets";
 import { logger } from "../config/observability";
 import { IConfig } from "config";
 
-export const getConfig: () => Promise<AppConfig> = async () => {
-    // Load any ENV vars from local .env file
-    if (process.env.NODE_ENV !== "production") {
-        dotenv.config();
-    }
+// Load any ENV vars from local .env file
+if (process.env.NODE_ENV !== "production") {
+    dotenv.config();
+}
 
+export const getConfig: () => Promise<AppConfig> = async () => {
     await populateEnvironmentFromKeyVault();
 
     // Load configuration after Azure KeyVault population is complete
@@ -36,6 +37,9 @@ export const getConfig: () => Promise<AppConfig> = async () => {
             connectionString: databaseConfig.connectionString,
             databaseName: databaseConfig.databaseName,
         },
+        recall: {
+            apiKey: process.env.RECALL_API_KEY || "",
+        }
     };
 };
 
@@ -61,7 +65,9 @@ const populateEnvironmentFromKeyVault = async () => {
             // KeyVault does not support underscores in key names and replaces '-' with '_'
             // Expect KeyVault secret names to be in conventional capitalized snake casing after conversion
             const keyName = secret.name.replace(/-/g, "_");
-            process.env[keyName] = secret.value;
+            if (!process.env[keyName]) {
+                process.env[keyName] = secret.value;
+            }
         }
     }
     catch (err: any) {
