@@ -7,7 +7,9 @@ process
         process.exit(1);
     });
 
-
+console.log("ENV");
+console.log(process.env);
+console.log("ENV");
 
 import { createApp } from "./app";
 import { logger } from "./config/observability";

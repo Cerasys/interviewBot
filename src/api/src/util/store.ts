@@ -23,6 +23,7 @@ export const RedisClient = async () => {
   if (!client) {
     client = createClient({
       url: process.env.REDIS_URL,
+      password: process.env.REDIS_PASSWORD,
     });
 
     // @todo: proper logging and error handling
