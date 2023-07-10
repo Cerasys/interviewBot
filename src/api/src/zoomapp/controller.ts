@@ -51,6 +51,9 @@ export const inClientOnAuthorized: RequestHandler = async (req, res, next) => {
 
   try {
     if (!zoomAuthorizationCode || state !== zoomInClientState) {
+      console.log("Zoom Authroization Code: ", zoomAuthorizationCode);
+      console.log("State: ", state);
+      console.log("Zoom In-Client State: ", zoomInClientState);
       throw new Error("State mismatch");
     }
 

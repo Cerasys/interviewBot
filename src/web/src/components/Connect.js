@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import Button from "react-bootstrap/Button";
 import "./Connect.css";
+import { AuthorizationContext } from "../contexts/AuthorizationContext";
 
-const Connect = (props) => {
+const Connect = memo((props) => {
+  const { zoomUser } = React.useContext(AuthorizationContext);
   const [botConnection, setBotConnection] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [failedConnection, setIsFailedConnection] = useState(false);
@@ -20,7 +22,7 @@ const Connect = (props) => {
             href: window.location.href,
             meetingContext: props.meetingContext,
             joinUrl: props.joinUrl,
-            email: props.user && props.user.email,
+            email: zoomUser && zoomUser.email,
           }),
           headers: {
             "Content-Type": "application/json",
@@ -79,12 +81,12 @@ const Connect = (props) => {
       </p>
 
       <div className="center">
-        <Button onClick={connectionHandler} disabled={isLoading}>
-          {botConnection ? "Disconnect" : "Connect"}
+        <Button onClick={connectionHandler} disabled={isLoading || botConnection}>
+          {"Connect"}
         </Button>
       </div>
     </React.Fragment>
   );
-};
+});
 
 export default Connect;

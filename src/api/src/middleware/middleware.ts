@@ -32,8 +32,7 @@ export const middleware = {
       maxAge: 365 * 24 * 60 * 60 * 1000,
     },
     store: new SessionStoreConstructor({
-      client: await RedisClient(),
-      prefix: "api:",
+      client: await RedisClient()
     })
   }),
 

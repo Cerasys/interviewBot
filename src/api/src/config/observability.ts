@@ -24,9 +24,7 @@ export const logger = winston.createLogger({
 
 export const observability = (config: ObservabilityConfig) => {
     // Append App Insights to the winston logger
-    logger.defaultMeta = {
-        app: config.roleName
-    };
+    logger.defaultMeta = { };
 
     try {
         applicationInsights
@@ -41,7 +39,6 @@ export const observability = (config: ObservabilityConfig) => {
             .setSendLiveMetrics(true)
             .setDistributedTracingMode(applicationInsights.DistributedTracingModes.AI_AND_W3C);
 
-        applicationInsights.defaultClient.context.tags[applicationInsights.defaultClient.context.keys.cloudRole] = config.roleName;
         applicationInsights.defaultClient.setAutoPopulateAzureProperties(true);
         applicationInsights.start();
 

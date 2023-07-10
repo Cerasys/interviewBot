@@ -1,0 +1,31 @@
+.connection-string {
+    font-size: 14px;
+    border-radius: 8px;
+    margin: auto;
+    width: 70%;
+    max-width: 200px;
+    padding: 4px;
+    margin-bottom: 10px;
+    background-color: bisque;
+    text-align: center;
+}
+
+
+.disconnected {
+    background-color: bisque;
+}
+
+.center {
+    margin: auto;
+    width: 80%;
+    text-align: center;
+    padding: 10px;
+}
+
+.failed {
+    background-color: lightcoral;
+}
+
+.connected {
+    background-color: lightgreen;
+}

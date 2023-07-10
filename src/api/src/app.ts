@@ -33,6 +33,8 @@ console.log("Zoom Routes Loaded");
 console.log("Loading Zoom App Routes...");
 import zoomAppRoutes from "./zoomapp/router";
 import { middleware } from "./middleware/middleware";
+import { startWorkerIfNotStarted } from "./persona/worker";
+import { createEmailClient } from "./util/EmailClient";
 console.log("Zoom App Routes Loaded");
 console.log("debug", "Routes Loaded");
 
@@ -113,5 +115,7 @@ export const createApp = async (): Promise<Express> => {
     app.use("/api/interviews", InterviewRoutes);
     app.use("/api/candidates", CanidateRoutes);
 
+    await startWorkerIfNotStarted();
+    createEmailClient();
     return app;
 };

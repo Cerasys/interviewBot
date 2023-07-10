@@ -1,6 +1,9 @@
 import axios from "axios";
 import { Persona } from "./persona";
 import { v4 as uuidv4 } from "uuid";
+import { getQueue } from "../util/queue";
+import { CompletionQueue } from "./constants";
+import { startWorkerIfNotStarted } from "./worker";
 
 
 export default {
@@ -94,8 +97,7 @@ export default {
     const botId = req.body?.data?.bot_id;
     const event = req.body?.event;
     const code = req.body?.data?.status?.code;
-    console.log(botId, event, code);
-    console.log(req.body);
+
     if (!botId || !event || code?.toLowerCase?.() !== "done") {
       return res.json({ result: "Success" });
     }
@@ -107,42 +109,13 @@ export default {
       return res.json({ result: "Success" });
     }
 
+    const completionQueue = await getQueue(CompletionQueue);
 
-    try {
-      const response = await axios({
-        method: "get",
-        url: `https://api.recall.ai/api/v1/bot/${botId}/transcript/`,
-        headers: {
-          "Authorization": "Token " + process.env.recallai,
-          "Accept": "application/json",
-        }
-      });
+    await completionQueue.add("botTranscriptReady", { botId });
 
-      const transcriptSections: { words: { text: string, start_timestamp: number, end_timestamp: number }[], speaker: string }[] = response.data;
-
-      console.log(transcriptSections);
-      const convertToSentence = ({ words, speaker }: { words: { text: string, start_timestamp: number, end_timestamp: number }[], speaker: string }) => {
-        return words.reduce((acc, word) => {
-          return acc + word.text + " ";
-        }, `${speaker}: `);
-      };
-
-      const transcript = transcriptSections.reduce((acc, section) => {
-        // eslint-disable-next-line quotes
-        return acc + '\n' + convertToSentence(section);
-      }, "");
-
-      console.log("transcript made");
-      console.log(transcript);
-
-      persona.transcript = transcript;
-      await persona.save();
-      return res.json({ result: "Success" });
-
-    } catch (error) {
-      console.log("Something went wrong: \n" + error);
-      return res.json({ result: "Success" });
-    }
+    await startWorkerIfNotStarted();
+    
+    return res.json({ result: "Success" });
   },
 
   async updatePersona(req: any, res: any) {

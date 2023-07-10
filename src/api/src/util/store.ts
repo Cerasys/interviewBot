@@ -1,7 +1,8 @@
-import { RedisClientType, createClient } from "redis";
+import { Redis, RedisOptions } from "ioredis";
 console.log("after redis, before encrypt");
 import encrypt from "./encrypt";
 console.log("after encrypt");
+
 /**
  * The auth token exchange happens before the Zoom App is launched. Therefore,
  * we need a place to store the tokens so we can later use them when a session
@@ -17,19 +18,25 @@ console.log(
 );
 
 
-let client: RedisClientType;
+let client: Redis;
+
 
 export const RedisClient = async () => {
   if (!client) {
-    client = createClient({
-      url: process.env.REDIS_URL,
+    const options: RedisOptions = {
+      host: process.env.REDIS_HOST,
+      port: Number(process.env.REDIS_PORT),
       password: process.env.REDIS_PASSWORD,
-    });
+      tls: {}
+    };
+    client = new Redis(options);
 
+    client.on("connect", () => {
+      console.log("Redis client connected");
+    });
     // @todo: proper logging and error handling
     client.on("error", console.error);
   }
-  await client.connect();
 
   return client;
 };

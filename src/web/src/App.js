@@ -1,19 +1,18 @@
 /* globals zoomSdk */
 import { useLocation, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { Authorization } from "./components/Authorization";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Transcription from "./components/Transcription";
 import Connect from "./components/Connect";
-
+import { configureSdk as ConfigureSDK, waitForZoomSdk } from "./SDK/zoomsdkwrapper";
+import { AuthorizationContextProvider } from "./contexts/AuthorizationContext";
+import Loading from "./components/Loading";
 let once = 0; // to prevent increasing number of event listeners being added
 
 function App() {
   const history = useHistory();
   const location = useLocation();
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
   const [runningContext, setRunningContext] = useState(null);
   const [meetingContext, setMeetingContext] = useState(null);
   const [connected, setConnected] = useState(false);
@@ -29,59 +28,15 @@ function App() {
         setCounter(counter + 1);
       }, 120 * 60 * 1000);
 
+      ConfigureSDK()
       try {
         // Configure the JS SDK, required to call JS APIs in the Zoom App
         // These items must be selected in the Features -> Zoom App SDK -> Add APIs tool in Marketplace
-        const configResponse = await zoomSdk.config({
-          capabilities: [
-            //APIs
-            "allowParticipantToRecord",
-            "cloudRecording",
-            "connect",
-            "expandApp",
-            "getMeetingContext",
-            "getMeetingJoinUrl",
-            "getMeetingParticipants",
-            "getMeetingUUID",
-            "getRecordingContext",
-            "getRunningContext",
-            "getSupportedJsApis",
-            "getUserContext",
-            "listCameras",
-            "openUrl",
-            "postMessage",
-            "sendAppInvitation",
-            "sendAppInvitationToAllParticipants",
-            "setCamera",
-            "setVirtualBackground",
-            "shareApp",
-            "showNotification",
-            //Events
-            "onShareApp",
-            "onSendAppInvitation",
-            "onCloudRecording",
-            "onActiveSpeakerChange",
-            "onAppPopout",
-            "onCohostChange",
-            "onParticipantChange",
-            "onReaction",
-            "onConnect",
-            "onExpandApp",
-            "onMessage",
-            "onMeeting",
-          ],
-          version: "0.16.0",
-        });
+        const configResponse = await ConfigureSDK();
         console.log("App configured", configResponse);
         // The config method returns the running context of the Zoom App
         setRunningContext(configResponse.runningContext);
         setUserContextStatus(configResponse.auth.status);
-        zoomSdk.onSendAppInvitation((data) => {
-          console.log(data);
-        });
-        zoomSdk.onShareApp((data) => {
-          console.log(data);
-        });
       } catch (error) {
         console.log(error);
         setError("There was an error configuring the JS SDK");
@@ -94,24 +49,24 @@ function App() {
   }, [counter]);
 
   // PRE-MEETING
-  let on_message_handler_client = useCallback(
-    (message) => {
-      let content = message.payload.payload;
-      if (content === "connected" && preMeeting === true) {
-        console.log("Meeting instance exists.");
-        zoomSdk.removeEventListener("onMessage", on_message_handler_client);
-        console.log("Letting meeting instance know client's current state.");
-        sendMessage(window.location.hash, "client");
-        setPreMeeting(false); // client instance is finished with pre-meeting
-      }
-    },
+  let on_message_handler_client = useCallback(async (message) => {
+    let content = message.payload.payload;
+    if (content === "connected" && preMeeting === true) {
+      console.log("Meeting instance exists.");
+      await waitForZoomSdk();
+      zoomSdk.removeEventListener("onMessage", on_message_handler_client);
+      console.log("Letting meeting instance know client's current state.");
+      sendMessage(window.location.hash, "client");
+      setPreMeeting(false); // client instance is finished with pre-meeting
+    }
+  },
     [preMeeting]
   );
 
   // PRE-MEETING
   useEffect(() => {
     if (runningContext === "inMainClient" && preMeeting === true) {
-      zoomSdk.addEventListener("onMessage", on_message_handler_client);
+      waitForZoomSdk().then(() => zoomSdk.addEventListener("onMessage", on_message_handler_client));
     }
   }, [on_message_handler_client, preMeeting, runningContext]);
 
@@ -120,25 +75,29 @@ function App() {
       "Message sent from " + sender + " with data: " + JSON.stringify(msg)
     );
     console.log("Calling postmessage...", msg);
+    await waitForZoomSdk();
     await zoomSdk.postMessage({
       payload: msg,
     });
   }
 
-  const receiveMessage = useCallback(
-    (receiver, reason = "") => {
-      let on_message_handler = (message) => {
-        let content = message.payload.payload;
-        console.log(
-          "Message received " + receiver + " " + reason + ": " + content
-        );
-        history.push({ pathname: content });
-      };
-      if (once === 0) {
-        zoomSdk.addEventListener("onMessage", on_message_handler);
-        once = 1;
+  const receiveMessage = useCallback(async (receiver, reason = "") => {
+    let on_message_handler = (message) => {
+      let content = message.payload.payload;
+      if (!content) {
+        return;
       }
-    },
+      console.log(
+        "Message received " + receiver + " " + reason + ": " + content
+      );
+      history.push({ pathname: content });
+    };
+    if (once === 0) {
+      waitForZoomSdk();
+      zoomSdk.addEventListener("onMessage", on_message_handler);
+      once = 1;
+    }
+  },
     [history]
   );
 
@@ -146,6 +105,7 @@ function App() {
     async function connectInstances() {
       // only can call connect when in-meeting
       if (runningContext === "inMeeting") {
+        await waitForZoomSdk();
         zoomSdk.addEventListener("onConnect", (event) => {
           console.log("Connected");
           setConnected(true);
@@ -216,33 +176,21 @@ function App() {
   // NOTE: runningContext can be: "inChat" | "inMeeting" | "inImmersive" | "inWebinar" | "inMainClient" | "inPhone" | "inCollaborate" | "inCamera" | "inDigitalSignage"
 
   return (
-    <div className="App">
-      <h1 className="center">Persona AI</h1>
-      <Connect
-        zoomSdk={zoomSdk}
-        runningContext={runningContext}
-        meetingContext={meetingContext}
-        joinUrl={joinUrl}
-        user={user}
-      />
-      <p>{`User Context Status: ${userContextStatus}`}</p>
-      <p>
-        {runningContext
-          ? `Running Context: ${runningContext}`
-          : "Configuring Zoom JavaScript SDK..."}
-      </p>
-      <p>JoinURL: {joinUrl}</p>
-      <p>Meeting context: {JSON.stringify(meetingContext)}</p>
-      {/* <Transcription>
-        <p>This is where transcriptions would go</p>
-      </Transcription> */}
-      <Authorization
+    <div className="App center">
+      <h1>Persona AI</h1>
+      <AuthorizationContextProvider
         handleError={setError}
         handleUserContextStatus={setUserContextStatus}
-        handleUser={setUser}
-        user={user}
         userContextStatus={userContextStatus}
-      />
+      >
+          <Loading runningContext={runningContext}>
+            <Connect
+              runningContext={runningContext}
+              meetingContext={meetingContext}
+              joinUrl={joinUrl}
+            />
+          </Loading>
+      </AuthorizationContextProvider>
     </div>
   );
 }

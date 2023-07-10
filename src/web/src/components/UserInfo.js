@@ -57,11 +57,7 @@ function UserInfo(props) {
     return <p className="p-loading">Loading Zoom User . . .</p>;
   }
 
-  return (
-    <div >
-      <pre className="pre-userinfo">{JSON.stringify(user, null, 2)}</pre>
-    </div>
-  );
+  return null;
 }
 
 export default UserInfo;

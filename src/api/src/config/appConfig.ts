@@ -1,6 +1,5 @@
 export interface ObservabilityConfig {
     connectionString: string
-    roleName: string
 }
 
 export interface RecallConfig {
@@ -9,7 +8,6 @@ export interface RecallConfig {
 
 export interface DatabaseConfig {
     connectionString: string
-    databaseName: string
 }
 
 export interface AppConfig {

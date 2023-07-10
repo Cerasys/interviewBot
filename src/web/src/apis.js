@@ -1,7 +1,9 @@
 /* globals zoomSdk */
+import { waitForZoomSdk } from "./SDK/zoomsdkwrapper";
 
-const invokeZoomAppsSdk = api => () => {
+const invokeZoomAppsSdk = api => async () => {
   const { name, buttonName = '', options = null } = api
+  await waitForZoomSdk();
   const zoomAppsSdkApi = zoomSdk[name].bind(zoomSdk)
 
   zoomAppsSdkApi(options)
