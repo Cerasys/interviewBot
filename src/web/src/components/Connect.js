@@ -1,3 +1,4 @@
+/* globals zoomSdk */
 import React, { memo, useState } from "react";
 import Button from "react-bootstrap/Button";
 import "./Connect.css";
@@ -28,6 +29,7 @@ const Connect = memo((props) => {
             "Content-Type": "application/json",
           },
         });
+
         if (!response.ok) {
           setIsFailedConnection(true);
           setBotConnection(false);
