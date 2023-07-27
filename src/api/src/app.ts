@@ -1,5 +1,7 @@
 import express, { Express } from "express";
+// import helmet, { HelmetOptions } from "helmet";
 import cors from "cors";
+
 import { getConfig } from "./config";
 import { configureMongoose } from "./models/mongoose";
 import { observability } from "./config/observability";
@@ -88,7 +90,36 @@ export const createApp = async (): Promise<Express> => {
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
         next();
     });
-    
+
+    // const headers: Readonly<HelmetOptions> = {
+    //     frameguard: {
+    //         action: "sameorigin",
+    //     },
+    //     hsts: {
+    //         maxAge: 31536000,
+    //     },
+    //     referrerPolicy: {
+    //         policy: ["same-origin"],
+    //     },
+    //     crossOriginEmbedderPolicy: false,
+    //     contentSecurityPolicy: {
+    //         directives: {
+    //             "default-src": "self",
+    //             "manifest-src": "self",
+    //             styleSrc: ["'self'", "'unsafe-inline'"],
+    //             scriptSrc: ["'self'", "https://appssdk.zoom.us/sdk.min.js"],
+    //             imgSrc: ["'self'", "https://osmond.personaai.ngrok.dev "],
+    //             "connect-src": ["'self'", "wss://osmond.personaai.ngrok.dev:9090/ws"],
+    //             "base-uri": "self",
+    //             "form-action": "self",
+    //         },
+    //     },
+    // };
+
+    app.use(middleware.setResponseHeaders);
+
+    // app.use(helmet(headers));
+
     app.use(await middleware.session());
 
     app.use(express.json());

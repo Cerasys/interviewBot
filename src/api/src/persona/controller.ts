@@ -53,17 +53,17 @@ export default {
           //   partial_results: false,
           //   destination_url: `${process.env.PUBLIC_URL}/persona/${personaId}/update`
           // },
-          
-          "transcription_options": {
-            "provider": "assembly_ai"
-          },
 
           // "transcription_options": {
-          //   "provider": "deepgram",
-          //   "deepgram": {
-          //     "tier": "nova"
-          //   }
+          //   "provider": "assembly_ai"
           // },
+
+          "transcription_options": {
+            "provider": "deepgram",
+            "deepgram": {
+              "tier": "nova"
+            }
+          },
           chat: {
             on_bot_join: {
               send_to: "host",
@@ -75,6 +75,7 @@ export default {
             noone_joined_timeout: 1200,
             everyone_left_timeout: 2
           },
+          recording_mode: "gallery_view_v2",
           meeting_url: joinUrl
         }
       });
@@ -114,7 +115,7 @@ export default {
     await completionQueue.add("botTranscriptReady", { botId });
 
     await startWorkerIfNotStarted();
-    
+
     return res.json({ result: "Success" });
   },
 

@@ -9,9 +9,8 @@ COPY . .
 RUN pnpm install
 RUN pnpm install --only=dev
 RUN pnpm install chokidar -D
+
 # If you are building your code for production
 # RUN pnpm ci --only=production
 
-
-
-CMD [ "pnpm", "start" ]
+CMD [ "pnpm", "start"]

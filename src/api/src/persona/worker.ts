@@ -3,7 +3,7 @@ import { CompletionQueue } from "./constants";
 import { Persona } from "./persona";
 import axios from "axios";
 import { RedisClient } from "../util/store";
-import { getEmailClient, sendMail } from "../util/EmailClient";
+import { sendMail } from "../util/EmailClient";
 
 type CompletionJob = Job<{ botId: string }>;
 
@@ -34,7 +34,7 @@ const createWorker = async () => {
         });
 
         const transcriptSections: { words: { text: string, start_timestamp: number, end_timestamp: number }[], speaker: string }[] = response.data;
-
+ 
         console.log(transcriptSections);
         const convertToSentence = ({ words, speaker }: { words: { text: string, start_timestamp: number, end_timestamp: number }[], speaker: string }) => {
             return words.reduce((acc, word) => {
@@ -44,7 +44,7 @@ const createWorker = async () => {
 
         const transcript = transcriptSections.reduce((acc, section) => {
             // eslint-disable-next-line quotes
-            return acc + "||" + convertToSentence(section);
+            return acc + " " + convertToSentence(section);
         }, "");
 
         console.log("transcript made");
@@ -65,7 +65,13 @@ const createWorker = async () => {
         }
         console.log("Completion generated");
         if (!completion) {
-            console.log("Completion not generated");
+            try {
+                completion = await axios.post("https://personainterviewcompletion.azurewebsites.net/api/generatecompletions?code=BVPn81P5CyI6-7KZLL4TMuYCfkhKeXoVVe1e7L7zUxIwAzFukmWOHQ==", {
+                    transcript
+                });
+            } catch (error) {
+                console.log("failed after two attempts");
+            } 
             return { result: "Success" };
         }
 
@@ -77,16 +83,26 @@ const createWorker = async () => {
                 completion: ${completion.data}
                 --------------------------
                 email: ${persona.email}
+                --------------------------
+                transcript: ${transcript}
                 `
             },
             recipients: {
                 to: [
-                  {
-                    address: "<osmond@personaai.ca>",
-                    displayName: "Osmond",
-                  },
+                    {
+                        address: "<osmond@personaai.ca>",
+                        displayName: "Osmond",
+                    },
+                    {
+                        address: "<nathan@personaai.ca>",
+                        displayName: "Nathan",
+                    },
+                    {
+                        address: "<Amol@personaai.ca>",
+                        displayName: "Amol",
+                    },
                 ],
-              },
+            },
         };
 
         console.log("Sending mail");
