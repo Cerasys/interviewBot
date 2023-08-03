@@ -1,5 +1,6 @@
 import express, { Express } from "express";
 // import helmet, { HelmetOptions } from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
 import cors from "cors";
 
 import { getConfig } from "./config";
@@ -126,6 +127,8 @@ export const createApp = async (): Promise<Express> => {
     app.use(cors({
         origin: originList()
     }));
+    
+    app.use(mongoSanitize());
 
     // API Routes
     // Zoom App routes

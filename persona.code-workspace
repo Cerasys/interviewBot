@@ -3,5 +3,17 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"debug.internalConsoleOptions": "neverOpen",
+		"files.readonlyExclude": {
+			"**/output/**/*.js": true
+		},
+		"search.exclude": {
+			"**/output": true
+		},
+		"explorer.autoRevealExclude": {
+			"**/output": true
+		}
+	}
 }
