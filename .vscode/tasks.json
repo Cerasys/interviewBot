@@ -6,7 +6,7 @@
             "type": "dotenv",
             "targetTasks": [
                 "Restore Web",
-                "Web npm start"
+                "Web pnpm start"
             ],
             "file": "${input:dotEnvFilePath}"
         },
@@ -20,10 +20,10 @@
             "problemMatcher": []
         },
         {
-            "label": "Web npm start",
+            "label": "Web pnpm start",
             "detail": "Helper task--use 'Start Web' task to ensure environment is set up correctly",
             "type": "shell",
-            "command": "npm run start",
+            "command": "pnpm run start",
             "options": {
                 "cwd": "${workspaceFolder}/src/web/",
                 "env": {
@@ -32,17 +32,16 @@
                 }
             },
             "presentation": {
-                "panel": "dedicated",
+                "panel": "dedicated"
             },
             "problemMatcher": []
         },
-
         {
             "label": "Start API",
             "type": "dotenv",
             "targetTasks": [
                 "Restore API",
-                "API npm start"
+                "API pnpm start"
             ],
             "file": "${input:dotEnvFilePath}"
         },
@@ -56,10 +55,10 @@
             "problemMatcher": []
         },
         {
-            "label": "API npm start",
+            "label": "API pnpm start",
             "detail": "Helper task--use 'Start API' task to ensure environment is set up correctly",
             "type": "shell",
-            "command": "npm run start",
+            "command": "pnpm run start",
             "options": {
                 "cwd": "${workspaceFolder}/src/api/",
                 "env": {
@@ -67,18 +66,74 @@
                 }
             },
             "presentation": {
-                "panel": "dedicated",
+                "panel": "dedicated"
             },
             "problemMatcher": []
         },
-
         {
             "label": "Start API and Web",
-            "dependsOn":[
+            "dependsOn": [
                 "Start API",
                 "Start Web"
             ],
             "problemMatcher": []
+        },
+        {
+            "type": "pnpm",
+            "script": "build",
+            "path": "src/api",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "pnpm: build - src/api",
+            "detail": "tsc -b ."
+        },
+        {
+            "type": "func",
+            "label": "func: host start",
+            "command": "host start",
+            "problemMatcher": "$func-node-watch",
+            "isBackground": true,
+            "dependsOn": "pnpm build (functions)",
+            "options": {
+                "cwd": "${workspaceFolder}/src\\emails"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "pnpm build (functions)",
+            "command": "pnpm run build",
+            "dependsOn": "pnpm clean (functions)",
+            "problemMatcher": "$tsc",
+            "options": {
+                "cwd": "${workspaceFolder}/src\\emails"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "pnpm install (functions)",
+            "command": "pnpm install",
+            "options": {
+                "cwd": "${workspaceFolder}/src\\emails"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "pnpm prune (functions)",
+            "command": "pnpm prune --production",
+            "dependsOn": "pnpm build (functions)",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}/src\\emails"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "pnpm clean (functions)",
+            "command": "pnpm run clean",
+            "dependsOn": "pnpm install (functions)",
+            "options": {
+                "cwd": "${workspaceFolder}/src\\emails"
+            }
         }
     ],
 
