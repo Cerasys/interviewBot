@@ -1,0 +1,24 @@
+{
+  "name": "@personaai/connections",
+  "version": "1.0.0",
+  "description": "Collection of client libraries",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "types": "./types/EmailClient.d.ts",
+  "main": "./output/EmailClient.js",
+  "type": "commonjs",
+  "files": [
+    "output/"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@azure/communication-email": "^1.0.0"
+  }
+}
