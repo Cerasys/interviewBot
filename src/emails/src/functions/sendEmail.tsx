@@ -27,6 +27,8 @@ export interface CompletionData {
   completions: Completion[];
   score: number;
   transcript: string;
+  candidate_name: string;
+  recruiter_name: string;
 }
 
 export async function sendEmail(
