@@ -8,8 +8,8 @@ const Footer: React.FC = () => {
                 <div>&copy; {new Date().getFullYear()} Persona AI Inc. All rights reserved.</div>
                 <div className="my-3 flex justify-center space-x-1">
                     <a href="/privacy-policy" className="text-blue-500 hover:underline">Privacy Policy</a> 
-                    {/* <span>|</span>
-                    <a href="/terms-of-service" className="text-blue-500 hover:underline">Terms of Service</a> */}
+                    <span>|</span>
+                    <a href="/terms-of-service" className="text-blue-500 hover:underline">Terms of Service</a>
                 </div>
             </div>
         </footer>
