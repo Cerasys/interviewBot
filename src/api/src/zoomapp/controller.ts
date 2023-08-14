@@ -98,6 +98,8 @@ export const inClientOnAuthorized: RequestHandler = async (req, res, next) => {
 
     return res.json({ result: "Success" });
   } catch (error) {
+    console.log("Error: ");
+    console.log(error);
     return next(error);
   }
 };

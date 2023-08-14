@@ -23,12 +23,18 @@ let client: Redis;
 
 export const RedisClient = async () => {
   if (!client) {
-    const options: RedisOptions = {
-      host: process.env.REDIS_HOST,
-      port: Number(process.env.REDIS_PORT),
-      password: process.env.REDIS_PASSWORD,
-      tls: {}
-    };
+    let options: RedisOptions;
+    if (process.env.REDIS_URL) {
+      // @ts-expect-error redisio allows for url connections
+      options = process.env.REDIS_URL;
+    } else {
+      options = {
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT),
+        password: process.env.REDIS_PASSWORD,
+        tls: {}
+      };
+    }
     client = new Redis(options);
 
     client.on("connect", () => {
