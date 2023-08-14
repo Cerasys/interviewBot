@@ -1,7 +1,20 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"name": "api",
+			"path": "src/api"
+		},
+		{
+			"name": "connections",
+			"path": "src/connections"
+		},
+		{
+			"name": "emails",
+			"path": "src/emails"
+		},
+		{
+			"name": "web",
+			"path": "src/web"
 		}
 	],
 	"settings": {
