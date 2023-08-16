@@ -6,9 +6,9 @@
   "scripts": {
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "prebuild": "npm run lint",
+    "prebuild": "pnpm run lint",
     "build": "tsc -b .",
-    "prestart": "npm run build",
+    "prestart": "pnpm run build",
     "start": "node . --enable-source-maps",
     "test": "jest --coverage"
   },
