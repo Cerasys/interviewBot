@@ -4,7 +4,7 @@
   "description": "Collection of client libraries",
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "pnpm run build"
   },
   "types": "./types/EmailClient.d.ts",
   "main": "./output/EmailClient.js",
