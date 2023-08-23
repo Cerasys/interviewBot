@@ -1,8 +1,7 @@
 {
-    "azureFunctions.deploySubpath": ".",
-    "azureFunctions.postDeployTask": "pnpm install (functions)",
+    "azureFunctions.postDeployTask": "",
     "azureFunctions.projectLanguage": "TypeScript",
     "azureFunctions.projectRuntime": "~4",
     "azureFunctions.projectLanguageModel": 4,
-    "azureFunctions.preDeployTask": "pnpm prune (functions)"
+    "azureFunctions.preDeployTask": ""
 }

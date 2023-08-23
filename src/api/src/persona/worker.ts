@@ -3,7 +3,8 @@ import { CompletionQueue } from "./constants";
 import { Persona } from "./persona";
 import axios from "axios";
 import { RedisClient } from "../util/store";
-import { sendMail } from "../util/EmailClient";
+import { gradeTranscript } from "./completions";
+import { sendEmail } from "./sendEmail";
 
 type CompletionJob = Job<{ botId: string }>;
 
@@ -24,6 +25,7 @@ const createWorker = async () => {
             console.log("No persona with bot id found");
             return { result: "Success" };
         }
+        
         const response = await axios({
             method: "get",
             url: `https://api.recall.ai/api/v1/bot/${botId}/transcript/`,
@@ -35,79 +37,52 @@ const createWorker = async () => {
 
         const transcriptSections: { words: { text: string, start_timestamp: number, end_timestamp: number }[], speaker: string }[] = response.data;
  
-        console.log(transcriptSections);
         const convertToSentence = ({ words, speaker }: { words: { text: string, start_timestamp: number, end_timestamp: number }[], speaker: string }) => {
             return words.reduce((acc, word) => {
                 return acc + word.text + " ";
             }, `${speaker}: `);
         };
 
+        const transcriptSentences: string[] = [];
         const transcript = transcriptSections.reduce((acc, section) => {
+            const sentence = convertToSentence(section);
+            transcriptSentences.push(sentence);
             // eslint-disable-next-line quotes
             return acc + " " + convertToSentence(section);
         }, "");
 
         console.log("transcript made");
-        console.log(transcript);
 
         persona.transcript = transcript;
         await persona.save();
 
-        let completion;
-        console.log("Sending transcript to completion server");
-        try {
-            completion = await axios.post("https://personainterviewcompletion.azurewebsites.net/api/generatecompletions?code=BVPn81P5CyI6-7KZLL4TMuYCfkhKeXoVVe1e7L7zUxIwAzFukmWOHQ==", {
-                transcript
-            });
-        } catch (error) {
-            console.log("Something went wrong: \n");
-            console.log(error);
-        }
-        console.log("Completion generated");
-        if (!completion) {
-            try {
-                completion = await axios.post("https://personainterviewcompletion.azurewebsites.net/api/generatecompletions?code=BVPn81P5CyI6-7KZLL4TMuYCfkhKeXoVVe1e7L7zUxIwAzFukmWOHQ==", {
-                    transcript
-                });
-            } catch (error) {
-                console.log("failed after two attempts");
-            } 
-            return { result: "Success" };
+        async function turboCompletion() {
+            console.log("Generating turbo completion");
+            const completion = await gradeTranscript(transcript, "gpt-3.5-turbo-16k");
+            console.log("Turbo completion complete, sending mail");
+            await sendEmail({
+                completions: completion.results,
+                score: completion.score,
+                transcript: transcriptSentences,
+                candidate_name: completion.candidate,
+                recruiter_name: completion.interviewer
+            }, "Turbo interview completion");
         }
 
-        const mail = {
-            senderAddress: "Completion@298f2941-2b3a-47d9-bc86-75ad53092dce.azurecomm.net",
-            content: {
-                subject: "Persona Interview Completion",
-                plainText: `
-                completion: ${completion.data}
-                --------------------------
-                email: ${persona.email}
-                --------------------------
-                transcript: ${transcript}
-                `
-            },
-            recipients: {
-                to: [
-                    {
-                        address: "<osmond@personaai.ca>",
-                        displayName: "Osmond",
-                    },
-                    {
-                        address: "<nathan@personaai.ca>",
-                        displayName: "Nathan",
-                    },
-                    {
-                        address: "<Amol@personaai.ca>",
-                        displayName: "Amol",
-                    },
-                ],
-            },
-        };
+        async function detailedCompletion() {
+            console.log("Generating detailed completion");
+            const completion = await gradeTranscript(transcript, "gpt-4");
+            console.log("Detailed completion complete, sending email");
+            await sendEmail({
+                completions: completion.results,
+                score: completion.score,
+                transcript: transcriptSentences,
+                candidate_name: completion.candidate,
+                recruiter_name: completion.interviewer
+            }, "Detailed interview completion");
+        }
 
-        console.log("Sending mail");
-        await sendMail(mail);
-        console.log("Mail sent");
+        await Promise.all([turboCompletion(), detailedCompletion()]);
 
         return { result: "Success" };
     }, {
