@@ -19,13 +19,6 @@ const createWorker = async () => {
     completionWorker = new Worker(CompletionQueue, async (job: CompletionJob) => {
         const botId = job.data.botId;
 
-        const persona = await Persona.findOne({ botId: botId });
-
-        if (!persona) {
-            console.log("No persona with bot id found");
-            return { result: "Success" };
-        }
-        
         const response = await axios({
             method: "get",
             url: `https://api.recall.ai/api/v1/bot/${botId}/transcript/`,
@@ -53,6 +46,14 @@ const createWorker = async () => {
 
         console.log("transcript made");
 
+        
+        const persona = await Persona.findOne({ botId: botId });
+
+        if (!persona) {
+            console.log("No persona with bot id found");
+            return { result: "Success" };
+        }
+        
         persona.transcript = transcript;
         await persona.save();
 
