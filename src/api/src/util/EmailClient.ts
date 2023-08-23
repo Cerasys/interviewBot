@@ -20,8 +20,12 @@ export const sendMail = async (message: EmailMessage) => {
     getEmailClient();
     
     try {
+      console.log("Email send polling initiated");
+
       const poller = await emailClient.beginSend(message);
-  
+      
+      console.log("Email send polling start");
+      
       if (!poller.getOperationState().isStarted) {
         throw "Poller was not started.";
       }
@@ -46,6 +50,7 @@ export const sendMail = async (message: EmailMessage) => {
         throw poller.getResult()?.error;
       }
     } catch (e) {
+      console.log("Failed to send email");
       console.log(e);
     }
 };

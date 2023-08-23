@@ -64,12 +64,12 @@ export default {
               "tier": "nova"
             }
           },
-          chat: {
-            on_bot_join: {
-              send_to: "host",
-              message: "Hello from persona"
-            }
-          },
+          // chat: {
+          //   // on_bot_join: {
+          //   //   send_to: "host",
+          //   //   message: "Hello from persona"
+          //   // }
+          // },
           automatic_leave: {
             waiting_room_timeout: 1200,
             noone_joined_timeout: 1200,
