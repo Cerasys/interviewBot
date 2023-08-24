@@ -57,7 +57,7 @@ export default {
           chat: {
             on_bot_join: {
               send_to: "host",
-              message: "Hello from persona"
+              message: "Hello from Persona! Our session has begun, and we are currently recording."
             }
           },
           automatic_leave: {
