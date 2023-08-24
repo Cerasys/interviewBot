@@ -20,7 +20,7 @@ export const sendEmail = (body: CompletionData, title? : string) => {
             subject: title || "Test Interview Report Card",
             html: email,
         },
-        recipients: {
+        recipients: { 
             to: [
                 {
                     address: "<osmond@personaai.ca>",
