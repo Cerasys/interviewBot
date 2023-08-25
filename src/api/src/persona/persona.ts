@@ -12,21 +12,26 @@ const Schema = mongoose.Schema;
 //   },
 
 const personaSchema = new Schema({
-    id: { type: String, required: true },
-    email: { type: String, required: true },
-    date: { type: Date, default: Date.now },
-    score: { type: Number, required: false },
-    botId: { type: String, required: false },
-    rawTranscript: [{
-        speaker: String,
-        words: [{
-            text: String,
-            start_timestamp: Number,
-            end_timestamp: Number
-        }]
-    }],
-    transcript: { type: String, required: false },
-    aiComplete: { type: String, required: false },
+  id: { type: String, required: true },
+  email: { type: String, required: true },
+  date: { type: Date, default: Date.now },
+  score: { type: Number, required: false },
+  botId: { type: String, required: false },
+  rawTranscript: [
+    {
+      speaker: String,
+      words: [
+        {
+          text: String,
+          start_timestamp: Number,
+          end_timestamp: Number,
+        },
+      ],
+    },
+  ],
+  uneditedTranscript: { type: String, required: false },
+  transcript: { type: String, required: false },
+  aiComplete: { type: String, required: false },
 });
 
 export const Persona = mongoose.model("Persona", personaSchema);
