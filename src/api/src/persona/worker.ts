@@ -72,16 +72,18 @@ const createWorker = async () => {
       }, "");
 
       console.log("transcript made");
+      persona.uneditedTranscript = transcript;
+      await persona.save();
 
-      var newTranscript = "";
       async function detailedTranscript() {
         console.log("Asking GPT for a better transcript");
-        newTranscript = await correctTranscript(transcript, "gpt-4");
+        const newTranscript = await correctTranscript(transcript, "gpt-4");
         console.log("Transcript improvement completion complete.");
+        return newTranscript;
       }
       console.log("transcript improved");
 
-      persona.transcript = newTranscript;
+      persona.transcript = await detailedTranscript();
       await persona.save();
 
       async function turboCompletion() {
@@ -119,11 +121,7 @@ const createWorker = async () => {
         );
       }
 
-      await Promise.all([
-        detailedTranscript(),
-        turboCompletion(),
-        detailedCompletion(),
-      ]);
+      await Promise.all([turboCompletion(), detailedCompletion()]);
 
       return { result: "Success" };
     },

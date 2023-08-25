@@ -2,26 +2,18 @@ import axios from "axios";
 import { Persona } from "./persona";
 import { v4 as uuidv4 } from "uuid";
 import { getQueue } from "../util/queue";
-import { CompletionQueue } from "./constants";
+import { CompletionQueue, NotificationQueue } from "./constants";
 import { startWorkerIfNotStarted } from "./worker";
+import { startWorkerIfNotStarted as startNotificationWorker } from "./workers/notificationWorker";
 
 
 export default {
   async connectToPersona(req: any, res: any, next: any) {
     const recallToken = process.env.recallai;
 
-    console.log("IN-CLIENT CONNECTION TO PERSONA", "\n");
-
-    // const zoomAuthorizationCode = req.body.code;
-    // const href = req.body.href;
     const email = req.body.email;
-    // const codeVerifier = req.session.codeVerifier;
-    console.log(req.body);
     const { meetingID, meetingTopic } = req.body.meetingContext;
     const joinUrl = req.body.joinUrl;
-
-    console.log("1. Verify meeting context exists and is not null");
-    console.log(joinUrl);
 
     try {
       if (!meetingID || !meetingTopic) {
@@ -37,8 +29,6 @@ export default {
 
       await newPersona.save();
 
-      console.log("2. Send post request to persona server", "\n");
-      console.log(req.body);
       const response = await axios({
         method: "post",
         url: "https://api.recall.ai/api/v1/bot/",
@@ -64,12 +54,12 @@ export default {
               "tier": "nova"
             }
           },
-          // chat: {
-          //   // on_bot_join: {
-          //   //   send_to: "host",
-          //   //   message: "Hello from persona"
-          //   // }
-          // },
+          chat: {
+            on_bot_join: {
+              send_to: "host",
+              message: "Hello from Persona! Our session has begun, and we are currently recording."
+            }
+          },
           automatic_leave: {
             waiting_room_timeout: 1200,
             noone_joined_timeout: 1200,
@@ -85,11 +75,9 @@ export default {
       newPersona.botId = bot_id;
       await newPersona.save();
 
-      console.log("Successfully made request");
 
       return res.json({ result: "Success" });
     } catch (error) {
-      console.log("Something went wrong: \n" + error);
       return next(error);
     }
   },
@@ -103,18 +91,12 @@ export default {
       return res.json({ result: "Success" });
     }
 
-    const persona = await Persona.findOne({ botId: botId });
-
-    if (!persona) {
-      console.log("No persona with bot id found");
-      return res.json({ result: "Success" });
-    }
-
     const completionQueue = await getQueue(CompletionQueue);
-
-    await completionQueue.add("botTranscriptReady", { botId });
+    const notificationQueue = await getQueue(NotificationQueue);
+    await Promise.all([notificationQueue.add("botTranscriptReady", { botId }), completionQueue.add("botTranscriptReady", { botId })]);
 
     await startWorkerIfNotStarted();
+    await startNotificationWorker();
 
     return res.json({ result: "Success" });
   },
@@ -126,9 +108,6 @@ export default {
     }
     await Persona.updateOne({ id: req.params.pid }, { $push: { rawTranscript: req.body.data.transcript } });
     return res.json({ result: "Success" });
-  },
+  }
 
-  async hello(req: any, res: any) {
-    res.send("Hello Zoom Apps!");
-  },
 };

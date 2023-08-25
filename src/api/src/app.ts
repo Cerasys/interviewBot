@@ -37,6 +37,7 @@ console.log("Loading Zoom App Routes...");
 import zoomAppRoutes from "./zoomapp/router";
 import { middleware } from "./middleware/middleware";
 import { startWorkerIfNotStarted } from "./persona/worker";
+import { startWorkerIfNotStarted as startNotificationWorker } from "./persona/workers/notificationWorker";
 import { createEmailClient } from "./util/EmailClient";
 console.log("Zoom App Routes Loaded");
 console.log("debug", "Routes Loaded");
@@ -150,6 +151,7 @@ export const createApp = async (): Promise<Express> => {
     app.use("/api/candidates", CanidateRoutes);
 
     await startWorkerIfNotStarted();
+    await startNotificationWorker();
     createEmailClient();
     return app;
 };

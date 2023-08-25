@@ -11,6 +11,4 @@ router.post("/connect", middleware.requiresThirdPartyAuth, controller.connectToP
 router.post("/:pid/update", controller.updatePersona);
 router.post("/webhook", controller.personaBotStatusChange);
 
-router.get("/hello", controller.hello);
-
 export default router;
