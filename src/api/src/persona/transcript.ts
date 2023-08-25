@@ -1,4 +1,3 @@
-import { parse } from "dotenv";
 import OpenAI from "openai";
 
 let openai: OpenAI;
@@ -22,7 +21,7 @@ export async function correctTranscript(
       {
         role: "system",
         content:
-          'The following transcript of a technical interview has lots of recording errors and stuttering due to language accents and poor audio recording. Fix them without changing the content of the interview itself. For Example "I I I use react" => "I use react"',
+          "The following transcript of a technical interview has lots of recording errors and stuttering due to language accents and poor audio recording. Fix them without changing the content of the interview itself.",
       },
       {
         role: "user",
@@ -46,6 +45,5 @@ export async function correctTranscript(
     throw new Error("No response from open ai");
   }
 
-  const parsedContent = JSON.parse(rawContent);
-  return parsedContent;
+  return rawContent;
 }
