@@ -76,9 +76,6 @@ const createWorker = async () => {
       console.log("Saving unedited transcript");
       await persona.save();
 
-      transcript =
-        "Ileana Rouse Okay. Great. Alright. So first questions will be around front end, and the first one is for React. Have you used React hooks and if so, what was the impact on the project using React Hooks?\nRaymond Szeto Yes. So we have hopes this very important that we act framework, some of the react hooks that I use, the most common one is youth state. Where when being used, you can update and render things onto the UI when verapost has been updated. Now if you don't use use state, then values in the back behind the scene can be updated, but then no vendor with what happened. And that's what you don't want. And there are laptop we have, that out there but the most common one is you state that everyone used. Use c fact. You know, when loading a page to call a API call, to get things back. That's to name a few. A lot more. I would say, you know, use weapon to find something on the component on the tweet to update value, to blur it, to make it our focus or end focus those are all can be done. Seven home, That that's some of the the acts, hooks that I Perfect.";
-
       async function detailedTranscript() {
         console.log("Editing transcript");
         const newTranscript = await correctTranscript(transcript, "gpt-4");
