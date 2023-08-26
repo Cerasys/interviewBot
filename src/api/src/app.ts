@@ -39,6 +39,7 @@ import { middleware } from "./middleware/middleware";
 import { startWorkerIfNotStarted } from "./persona/worker";
 import { startWorkerIfNotStarted as startNotificationWorker } from "./persona/workers/notificationWorker";
 import { createEmailClient } from "./util/EmailClient";
+import { createGDriveClient } from "./util/GDrive";
 console.log("Zoom App Routes Loaded");
 console.log("debug", "Routes Loaded");
 
@@ -153,5 +154,6 @@ export const createApp = async (): Promise<Express> => {
     await startWorkerIfNotStarted();
     await startNotificationWorker();
     createEmailClient();
+    createGDriveClient();
     return app;
 };

@@ -64,7 +64,8 @@ const createWorker = async () => {
       };
 
       const transcriptSentences: string[] = [];
-      var transcript = transcriptSections.reduce((acc, section) => {
+      
+      let transcript = transcriptSections.reduce((acc, section) => {
         const sentence = convertToSentence(section);
         transcriptSentences.push(sentence);
         // eslint-disable-next-line quotes
