@@ -56,8 +56,8 @@ export default {
           },
           chat: {
             on_bot_join: {
-              send_to: "host",
-              message: "Hello from Persona! Our session has begun, and we are currently recording."
+              send_to: "everyone",
+              message: "Welcome to Persona! By participating in this recorded and evaluated meeting, you consent to the recording. Thanks!"
             }
           },
           automatic_leave: {
